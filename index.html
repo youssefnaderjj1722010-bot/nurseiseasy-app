@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NurseNote — study summaries for nursing students</title>
+  <meta name="description" content="Turn lecture notes into exam-ready summaries and key points. Stored locally in your browser." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f766e'/%3E%3Cpath d='M16 9v14M9 16h14' stroke='white' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <div class="app">
+    <div class="scrim" id="scrim"></div>
+
+    <aside class="sidebar" id="sidebar" aria-label="Library">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </div>
+        <div>
+          <div class="brand-name">NurseNote</div>
+          <div class="brand-tag">Summaries that stick</div>
+        </div>
+      </div>
+
+      <nav class="side-nav">
+        <div class="side-heading">Library</div>
+        <button class="side-item active" id="nav-all" type="button">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <span>All topics</span>
+          <span class="side-count" id="count-all">0</span>
+        </button>
+      </nav>
+
+      <div class="side-heading side-heading-courses">Courses</div>
+      <div class="course-nav" id="course-nav"></div>
+
+      <div class="sidebar-foot">
+        <div class="storage-note" id="storage-note">Local data · 0 KB</div>
+        <div class="foot-actions">
+          <button class="btn btn-side" id="btn-settings" type="button">
+            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
+            Settings
+          </button>
+          <button class="btn btn-side btn-icon" id="btn-export" type="button" title="Export backup" aria-label="Export backup">
+            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="btn btn-icon menu-btn" id="btn-menu" type="button" aria-label="Open menu">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <div class="search">
+          <svg class="ic search-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input type="search" id="search-input" placeholder="Search topics, summaries, courses…" autocomplete="off" aria-label="Search topics" />
+          <kbd class="search-kbd">/</kbd>
+        </div>
+        <button class="btn btn-primary" id="btn-new" type="button" aria-label="New topic">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          <span class="btn-label">New topic</span>
+        </button>
+      </header>
+
+      <div class="content">
+        <div class="setup-banner" id="setup-banner" hidden>
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+          <p>Add your AI API key to start generating summaries. It stays in this browser only.</p>
+          <button class="btn btn-sm" id="banner-settings" type="button">Add key</button>
+          <button class="btn btn-icon btn-ghost" id="banner-dismiss" type="button" aria-label="Dismiss">
+            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <div class="page-head">
+          <div>
+            <h1 id="page-title">All topics</h1>
+            <p class="page-sub" id="page-sub">0 summaries</p>
+          </div>
+        </div>
+
+        <div id="topics-grid" class="topics-grid" aria-live="polite"></div>
+
+        <div class="empty" id="empty-state" hidden>
+          <div class="empty-art" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M15 2v5h5"/><path d="M9 13l2 2 4-4"/></svg>
+          </div>
+          <h2 id="empty-title">No topics yet</h2>
+          <p id="empty-text">Paste your lecture notes, generate a summary, and keep the key points ready for exam day.</p>
+          <div class="empty-actions">
+            <button class="btn btn-primary" id="empty-new" type="button">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              Create your first topic
+            </button>
+            <button class="btn" id="empty-clear-search" type="button" hidden>Clear search</button>
+          </div>
+          <ol class="empty-steps">
+            <li><span>1</span> Paste notes or a chapter section</li>
+            <li><span>2</span> Generate a summary with AI</li>
+            <li><span>3</span> Review, edit, and save</li>
+          </ol>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="overlay" id="editor-overlay" hidden>
+    <div class="modal modal-editor" role="dialog" aria-modal="true" aria-labelledby="editor-eyebrow">
+      <div class="modal-head">
+        <div class="modal-head-text">
+          <div class="eyebrow" id="editor-eyebrow">New topic</div>
+          <input class="editor-title" id="editor-title" type="text" placeholder="Topic title, e.g. Post-op wound care" aria-label="Topic title" maxlength="120" />
+          <div class="editor-meta">
+            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            <input id="editor-course" type="text" placeholder="Course (optional), e.g. Med-Surg" maxlength="60" list="course-options" aria-label="Course" />
+            <datalist id="course-options"></datalist>
+          </div>
+        </div>
+        <button class="btn btn-icon btn-ghost" id="editor-close" type="button" aria-label="Close">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="modal-body editor-body">
+        <section class="pane">
+          <div class="pane-head">
+            <span class="step-num">1</span>
+            <div>
+              <h3>Your notes</h3>
+              <p>Paste lecture notes, a textbook section, or a slide dump.</p>
+            </div>
+          </div>
+          <textarea id="editor-source" class="textarea textarea-source" placeholder="Paste your notes here…" spellcheck="false"></textarea>
+          <div class="source-foot">
+            <span class="char-count" id="char-count">0 characters</span>
+            <span class="char-hint" id="char-hint"></span>
+          </div>
+          <div class="gen-row">
+            <button class="btn btn-primary" id="btn-generate" type="button">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9L12 3z"/><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15z"/></svg>
+              <span id="generate-label">Generate summary</span>
+            </button>
+            <span class="gen-status" id="gen-status"></span>
+          </div>
+          <p class="key-hint" id="key-hint" hidden>
+            No API key yet.
+            <button class="link-btn" id="editor-open-settings" type="button">Open settings</button>
+          </p>
+        </section>
+
+        <section class="pane">
+          <div class="pane-head">
+            <span class="step-num">2</span>
+            <div>
+              <h3>Study draft</h3>
+              <p>Edit anything the AI gets wrong — accuracy matters clinically.</p>
+            </div>
+          </div>
+          <label class="field-label" for="editor-summary">Summary</label>
+          <textarea id="editor-summary" class="textarea textarea-summary" placeholder="Your summary appears here after generating…"></textarea>
+          <label class="field-label" for="editor-keypoints">Key points — one per line</label>
+          <textarea id="editor-keypoints" class="textarea textarea-keypoints" placeholder="• One testable fact per line…"></textarea>
+        </section>
+      </div>
+
+      <div class="modal-foot">
+        <div class="foot-left">
+          <button class="btn btn-danger-ghost" id="btn-delete-topic" type="button" hidden>
+            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>
+            Delete topic
+          </button>
+          <button class="btn btn-ghost" id="btn-copy-draft" type="button">
+            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+            Copy
+          </button>
+        </div>
+        <div class="foot-right">
+          <button class="btn" id="editor-cancel" type="button">Cancel</button>
+          <button class="btn btn-primary" id="editor-save" type="button">Save topic</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="settings-overlay" hidden>
+    <div class="modal modal-settings" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div class="modal-head">
+        <div class="modal-head-text">
+          <div class="eyebrow">Settings</div>
+          <h2 class="modal-title" id="settings-title">AI &amp; data</h2>
+        </div>
+        <button class="btn btn-icon btn-ghost" id="settings-close" type="button" aria-label="Close">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="modal-body settings-body">
+        <div class="settings-section">
+          <h3 class="settings-h">AI provider</h3>
+          <div class="segmented" role="group" aria-label="AI provider">
+            <button class="seg-btn active" type="button" data-provider="gemini">Google Gemini</button>
+            <button class="seg-btn" type="button" data-provider="openai">OpenAI-compatible</button>
+          </div>
+
+          <label class="field-label" for="settings-key">API key</label>
+          <div class="input-row">
+            <input id="settings-key" type="password" placeholder="Paste your API key" autocomplete="off" spellcheck="false" />
+            <button class="btn btn-icon" id="toggle-key" type="button" aria-label="Show API key">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <p class="help">Get a free Gemini key at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. The key is saved in this browser's local storage and sent only to your chosen provider.</p>
+
+          <label class="field-label" for="settings-model">Model <span class="optional">optional</span></label>
+          <input id="settings-model" type="text" placeholder="gemini-2.5-flash" autocomplete="off" spellcheck="false" />
+          <p class="help" id="model-help">Leave empty to use the default model.</p>
+
+          <div id="base-url-field" hidden>
+            <label class="field-label" for="settings-base-url">Base URL</label>
+            <input id="settings-base-url" type="text" placeholder="https://api.openai.com/v1" autocomplete="off" spellcheck="false" />
+            <p class="help">Any OpenAI-compatible endpoint works: OpenAI, OpenRouter, Groq, or a local Ollama server (http://localhost:11434/v1).</p>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3 class="settings-h">Your data</h3>
+          <p class="help">All topics live in this browser only. Export a backup before clearing browser data or switching devices.</p>
+          <div class="settings-actions">
+            <button class="btn" id="settings-export" type="button">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+              Export backup
+            </button>
+            <button class="btn btn-danger-ghost" id="settings-clear" type="button">Clear all data</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-foot">
+        <div class="foot-left"></div>
+        <div class="foot-right">
+          <button class="btn" id="settings-cancel" type="button">Cancel</button>
+          <button class="btn btn-primary" id="settings-save" type="button">Save settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
